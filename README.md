@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Same Time. Different Climb.
 
-## Getting Started
+A single-page, scroll-driven narrative experience inspired by Alex Honnold's 1 hour and 31 minute ascent of Taipei 101 on January 25, 2026.
 
-First, run the development server:
+This is not a productivity app. It's a time-based reflection on commitment, effort, and focus.
+
+## The Experience
+
+1. **Scroll through the narrative** — context about the climb, the thesis, and a moment of reflection
+2. **Commit to your mission** — declare what you'll achieve in 1 hour and 31 minutes
+3. **The climb begins** — scroll locks, time takes over, the building ascends with your progress
+4. **Finish** — after 91 minutes, see your reflection
+
+## Tech Stack
+
+- **Framework**: Next.js 16+ (App Router)
+- **Styling**: Tailwind CSS
+- **Fonts**: 
+  - [IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono) — timer and factual elements
+  - [Fraunces](https://fonts.google.com/specimen/Fraunces) — editorial serif (fallback for Canela)
+- **Deployment**: Vercel
+
+## Local Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the experience.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy to Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Option 1: One-Click Deploy
 
-## Learn More
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/alexclimb)
 
-To learn more about Next.js, take a look at the following resources:
+### Option 2: CLI Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Install Vercel CLI
+npm i -g vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Deploy
+vercel
+```
 
-## Deploy on Vercel
+### Option 3: Git Integration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push this repository to GitHub
+2. Import the project at [vercel.com/new](https://vercel.com/new)
+3. Vercel will auto-detect Next.js and configure the build
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+```
+alexclimb/
+├── app/
+│   ├── layout.tsx      # Root layout with fonts
+│   ├── page.tsx        # Main page with state management
+│   └── globals.css     # Global styles and CSS variables
+├── components/
+│   ├── NarrativeSections.tsx  # Scroll narrative + mission form
+│   ├── TimerView.tsx          # 91-minute countdown display
+│   └── Taipei101.tsx          # Animated building SVG
+└── public/
+```
+
+## Accessibility
+
+- Respects `prefers-reduced-motion` — disables animations
+- Semantic HTML with proper ARIA labels
+- Sufficient color contrast for readability
+- Mobile responsive design
+
+## Design Notes
+
+- **Off-white background** (#FAF9F6) — subtle warmth
+- **Single accent color** (warm brown) — used sparingly
+- **Building as progress** — no visible progress bars
+- **Gallery/installation aesthetic** — timer offset, minimal UI
+
+---
+
+*Inspired by the commitment it takes to climb 101 floors without ropes.*

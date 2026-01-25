@@ -1,65 +1,158 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import NarrativeSections from "@/components/NarrativeSections";
+import TimerView from "@/components/TimerView";
+import Taipei101 from "@/components/Taipei101";
+
+type AppState = "narrative" | "timer" | "complete";
+
+const TOTAL_SECONDS = 5460; // 91 minutes = 1h31m
 
 export default function Home() {
+  const [appState, setAppState] = useState<AppState>("narrative");
+  const [mission, setMission] = useState("");
+  const [name, setName] = useState("");
+  const [isFading, setIsFading] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  // Lock scroll when timer is active
+  useEffect(() => {
+    if (appState === "timer" || appState === "complete") {
+      document.documentElement.classList.add("scroll-locked");
+    } else {
+      document.documentElement.classList.remove("scroll-locked");
+    }
+
+    return () => {
+      document.documentElement.classList.remove("scroll-locked");
+    };
+  }, [appState]);
+
+  // Timer logic - single source of truth for elapsed time
+  useEffect(() => {
+    if (appState !== "timer") return;
+
+    const interval = setInterval(() => {
+      setElapsedSeconds((prev) => {
+        const next = prev + 1;
+        if (next >= TOTAL_SECONDS) {
+          setAppState("complete");
+          return TOTAL_SECONDS;
+        }
+        return next;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [appState]);
+
+  // Debug keyboard controls (development only)
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only work during timer phase
+      if (appState !== "timer" && appState !== "complete") return;
+
+      switch (e.key) {
+        case "ArrowRight":
+          // Jump forward 5 minutes (300 seconds)
+          setElapsedSeconds((prev) => Math.min(prev + 300, TOTAL_SECONDS));
+          break;
+        case "ArrowLeft":
+          // Jump back 5 minutes
+          setElapsedSeconds((prev) => Math.max(prev - 300, 0));
+          break;
+        case "ArrowUp":
+          // Jump forward 1 minute
+          setElapsedSeconds((prev) => Math.min(prev + 60, TOTAL_SECONDS));
+          break;
+        case "ArrowDown":
+          // Jump back 1 minute
+          setElapsedSeconds((prev) => Math.max(prev - 60, 0));
+          break;
+        case "e":
+        case "E":
+          // Jump to end
+          setElapsedSeconds(TOTAL_SECONDS);
+          setAppState("complete");
+          break;
+        case "s":
+        case "S":
+          // Jump to start
+          setElapsedSeconds(0);
+          setAppState("timer");
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [appState]);
+
+  // Persist mission to localStorage
+  useEffect(() => {
+    if (mission) {
+      localStorage.setItem("climb-mission", mission);
+      if (name) {
+        localStorage.setItem("climb-name", name);
+      }
+    }
+  }, [mission, name]);
+
+  // Load persisted mission on mount (optional - for showing what was committed)
+  useEffect(() => {
+    const savedMission = localStorage.getItem("climb-mission");
+    const savedName = localStorage.getItem("climb-name");
+    if (savedMission) {
+      setMission(savedMission);
+    }
+    if (savedName) {
+      setName(savedName);
+    }
+  }, []);
+
+  const handleCommit = useCallback((missionText: string, nameText: string) => {
+    setMission(missionText);
+    setName(nameText);
+    setIsFading(true);
+    setElapsedSeconds(0); // Reset timer on new commit
+
+    // Smooth transition to timer
+    setTimeout(() => {
+      setAppState("timer");
+      setIsFading(false);
+    }, 800);
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="relative min-h-screen bg-[var(--background)]">
+      {/* Taipei 101 visual with Alex climbing - always present */}
+      <Taipei101
+        isTimerActive={appState === "timer" || appState === "complete"}
+        elapsedSeconds={elapsedSeconds}
+        isComplete={appState === "complete"}
+      />
+
+      {/* Narrative sections */}
+      <div
+        className={`transition-opacity duration-700 ${
+          appState === "narrative" && !isFading ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <NarrativeSections onCommit={handleCommit} />
+      </div>
+
+      {/* Timer view */}
+      {(appState === "timer" || appState === "complete") && (
+        <TimerView
+          mission={mission}
+          name={name}
+          elapsedSeconds={elapsedSeconds}
+          isComplete={appState === "complete"}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+    </main>
   );
 }
