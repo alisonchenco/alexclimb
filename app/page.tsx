@@ -82,6 +82,59 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [appState]);
 
+  // Mobile touch controls
+  useEffect(() => {
+    if (appState !== "timer" && appState !== "complete") return;
+
+    let longPressTimer: NodeJS.Timeout | null = null;
+    let isLongPress = false;
+
+    const handleTouchStart = () => {
+      isLongPress = false;
+
+      // Start long press timer (500ms threshold)
+      longPressTimer = setTimeout(() => {
+        isLongPress = true;
+        // Long press: jump back 1 minute
+        setElapsedSeconds((prev) => Math.max(prev - 60, 0));
+      }, 500);
+    };
+
+    const handleTouchEnd = () => {
+      // Clear the long press timer
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+
+      // If it wasn't a long press, it's a tap: jump forward 1 minute
+      if (!isLongPress) {
+        setElapsedSeconds((prev) => Math.min(prev + 60, TOTAL_SECONDS));
+      }
+    };
+
+    const handleTouchCancel = () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+      isLongPress = false;
+    };
+
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchend", handleTouchEnd);
+    window.addEventListener("touchcancel", handleTouchCancel);
+
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchcancel", handleTouchCancel);
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+      }
+    };
+  }, [appState]);
+
   // Persist mission to localStorage
   useEffect(() => {
     if (mission) {
