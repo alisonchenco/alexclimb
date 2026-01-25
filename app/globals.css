@@ -41,7 +41,7 @@ body {
 
 /* Selection styling */
 ::selection {
-  background: var(--accent);
+  background: #000000;
   color: var(--background);
 }
 

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 interface NarrativeSectionsProps {
-  onCommit: (mission: string, name: string) => void;
+  onCommit: (mission: string, name: string, signature: string) => void;
 }
 
 // Hook for intersection observer animation
@@ -236,11 +236,12 @@ export default function NarrativeSections({ onCommit }: NarrativeSectionsProps) 
     <div className="relative min-h-screen overflow-hidden">
       {/* Page 1: Story & Context */}
       <div
-        className={`transition-all duration-600 ease-in-out ${
+        className={`transition-all duration-700 ${
           currentPage === 1 && !isTransitioning
-            ? "opacity-100 translate-x-0"
-            : "opacity-0 -translate-x-full pointer-events-none absolute inset-0"
+            ? "opacity-100 translate-y-0 scale-100 blur-0"
+            : "opacity-0 -translate-y-8 scale-98 blur-sm pointer-events-none absolute inset-0"
         }`}
+        style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
       >
         {/* Section 1: Context (Museum Label) - Typewriter effect */}
         <section className="min-h-screen flex flex-col items-center justify-center px-8 md:px-16 lg:px-24 py-16 gap-16">
@@ -268,8 +269,7 @@ export default function NarrativeSections({ onCommit }: NarrativeSectionsProps) 
           <button
             onClick={handleNext}
             className="font-mono text-sm tracking-wider hover:text-[var(--foreground)]
-                       transition-all duration-300 py-3 px-8 border border-[#59AEC5]/30
-                       hover:border-[var(--foreground)]/50 rounded-sm"
+                       transition-all duration-300 py-3 px-8"
             style={{ color: '#59AEC5' }}
           >
             next →
@@ -279,23 +279,34 @@ export default function NarrativeSections({ onCommit }: NarrativeSectionsProps) 
 
       {/* Page 2: Commitment */}
       <div
-        className={`transition-all duration-600 ease-in-out ${
+        className={`transition-all duration-[800ms] ${
           currentPage === 2 && !isTransitioning
-            ? "opacity-100 translate-x-0"
-            : "opacity-0 translate-x-full pointer-events-none absolute inset-0"
+            ? "opacity-100 translate-y-0 scale-100"
+            : "opacity-0 translate-y-[100vh] scale-95 pointer-events-none absolute inset-0"
         }`}
+        style={{ transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
       >
         {/* Section 4: Commitment Form */}
         <section className="min-h-screen flex items-center justify-center px-8 md:px-16 lg:px-24 py-16">
-          <div className="w-full max-w-md">
-            <AnimatedSection>
-              <MissionForm onCommit={onCommit} />
-            </AnimatedSection>
+          <div
+            className={`w-full max-w-md transition-all duration-700 delay-200 ${
+              currentPage === 2 && !isTransitioning
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
+            }`}
+          >
+            <MissionForm onCommit={onCommit} />
           </div>
         </section>
 
         {/* Back button */}
-        <div className="absolute top-8 left-8 md:top-10 md:left-16 lg:left-24">
+        <div
+          className={`absolute top-8 left-8 md:top-10 md:left-16 lg:left-24 transition-all duration-500 delay-300 ${
+            currentPage === 2 && !isTransitioning
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 -translate-x-4"
+          }`}
+        >
           <button
             onClick={handleBack}
             className="font-mono text-xs tracking-wider text-[var(--muted)] hover:text-[var(--foreground)]
@@ -402,26 +413,19 @@ function SignatureCanvas({ onSignatureChange }: { onSignatureChange: (signature:
           onTouchStart={startDrawing}
           onTouchMove={draw}
           onTouchEnd={stopDrawing}
-          className="w-full h-24 border-b-2 border-[var(--foreground)]/30 cursor-crosshair touch-none"
+          className="w-full h-24 border-b border-[var(--foreground)]/20 cursor-crosshair touch-none"
           style={{ width: "100%", height: "96px" }}
         />
-        {!hasSignature && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="font-serif text-sm text-[var(--muted)]/40">
-              Sign here
-            </p>
-          </div>
-        )}
       </div>
-      <div className="flex items-center justify-between">
-        <p className="font-mono text-xs text-[var(--muted)]/60">
+      <div className="relative">
+        <p className="font-mono text-xs text-[var(--muted)]/60 text-center">
           Your signature
         </p>
         {hasSignature && (
           <button
             type="button"
             onClick={clearSignature}
-            className="font-mono text-xs text-[var(--muted)] hover:text-[var(--foreground)]
+            className="absolute right-0 top-0 font-mono text-xs text-[var(--muted)]/60 hover:text-[var(--foreground)]
                        transition-colors duration-300"
           >
             clear
@@ -432,8 +436,11 @@ function SignatureCanvas({ onSignatureChange }: { onSignatureChange: (signature:
   );
 }
 
-function MissionForm({ onCommit }: { onCommit: (mission: string, name: string) => void }) {
+function MissionForm({ onCommit }: { onCommit: (mission: string, name: string, signature: string) => void }) {
   const [signature, setSignature] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [missionText, setMissionText] = useState("");
+  const [showButton, setShowButton] = useState(false);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -442,19 +449,40 @@ function MissionForm({ onCommit }: { onCommit: (mission: string, name: string) =
     const name = formData.get("name") as string;
 
     if (mission.trim()) {
-      onCommit(mission.trim(), name?.trim() || "");
+      onCommit(mission.trim(), name?.trim() || "", signature);
+    }
+  };
+
+  const handleMissionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setMissionText(value);
+    if (value.trim() && !showButton) {
+      setShowButton(true);
+    } else if (!value.trim() && showButton) {
+      setShowButton(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-12 text-center">
-      <p className="font-serif text-lg md:text-xl leading-relaxed">
-        What are you going to achieve<br />
-        in the next <span className="font-mono text-base">1 hour and 31 minutes</span>?
-      </p>
+      <TypewriterSequence
+        lines={[
+          "Now it's your turn.",
+          "You have 1 hr 31 mins.",
+          "What's your focus?",
+        ]}
+        className=""
+        lineClassName="font-mono text-sm text-[var(--muted)] tracking-wide"
+        speed={35}
+        lineDelay={400}
+        startDelay={0}
+        onComplete={() => setShowForm(true)}
+      />
 
       {/* Paper Note Box - All Fields */}
-      <div className="bg-white/5 backdrop-blur-sm border border-[var(--foreground)]/10 rounded-sm p-8 md:p-10 shadow-sm space-y-6">
+      <div className={`bg-white/5 backdrop-blur-sm border border-[var(--foreground)]/10 rounded-sm p-8 md:p-10 shadow-sm space-y-6 transition-all duration-700 ${
+        showForm ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      }`}>
         {/* Mission Field */}
         <div>
           <label htmlFor="mission" className="sr-only">Your mission</label>
@@ -464,6 +492,8 @@ function MissionForm({ onCommit }: { onCommit: (mission: string, name: string) =
             required
             rows={3}
             placeholder="Your mission"
+            value={missionText}
+            onChange={handleMissionChange}
             className="w-full bg-transparent border-none outline-none
                        font-serif text-lg resize-none text-center
                        placeholder:text-[var(--muted)]/50 transition-colors duration-300"
@@ -473,17 +503,19 @@ function MissionForm({ onCommit }: { onCommit: (mission: string, name: string) =
         {/* Name and Signature Fields - closer together */}
         <div className="space-y-3 pt-4">
           {/* Name Field */}
-          <div>
-            <label htmlFor="name" className="sr-only">Your name</label>
+          <div className="space-y-2">
             <input
               type="text"
               id="name"
               name="name"
-              placeholder="Your name"
+              placeholder=""
               className="w-full bg-transparent border-b border-[var(--foreground)]/20 focus:border-[var(--foreground)]/60
                          outline-none py-2 px-1 font-mono text-xs text-center
                          placeholder:text-[var(--muted)]/50 transition-colors duration-300"
             />
+            <label htmlFor="name" className="block font-mono text-xs text-[var(--muted)]/60">
+              Your name
+            </label>
           </div>
 
           {/* Signature Field */}
@@ -493,11 +525,14 @@ function MissionForm({ onCommit }: { onCommit: (mission: string, name: string) =
         </div>
       </div>
 
-      <div className="pt-8">
+      <div className={`pt-8 transition-all duration-700 ${
+        showButton ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none"
+      }`}>
         <button
           type="submit"
-          className="font-mono text-sm tracking-wider text-[var(--accent)] hover:text-[var(--foreground)]
+          className="font-mono text-sm tracking-wider hover:text-[var(--foreground)]
                      transition-colors duration-300 py-2 px-6"
+          style={{ color: '#59AEC5' }}
         >
           commit.
         </button>

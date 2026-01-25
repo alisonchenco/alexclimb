@@ -13,6 +13,7 @@ export default function Home() {
   const [appState, setAppState] = useState<AppState>("narrative");
   const [mission, setMission] = useState("");
   const [name, setName] = useState("");
+  const [signature, setSignature] = useState("");
   const [isFading, setIsFading] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
@@ -47,23 +48,13 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [appState]);
 
-  // Debug keyboard controls (development only)
+  // Keyboard controls
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only work during timer phase
       if (appState !== "timer" && appState !== "complete") return;
 
       switch (e.key) {
-        case "ArrowRight":
-          // Jump forward 5 minutes (300 seconds)
-          setElapsedSeconds((prev) => Math.min(prev + 300, TOTAL_SECONDS));
-          break;
-        case "ArrowLeft":
-          // Jump back 5 minutes
-          setElapsedSeconds((prev) => Math.max(prev - 300, 0));
-          break;
         case "ArrowUp":
           // Jump forward 1 minute
           setElapsedSeconds((prev) => Math.min(prev + 60, TOTAL_SECONDS));
@@ -80,7 +71,7 @@ export default function Home() {
           break;
         case "s":
         case "S":
-          // Jump to start
+          // Restart - jump to start
           setElapsedSeconds(0);
           setAppState("timer");
           break;
@@ -98,24 +89,32 @@ export default function Home() {
       if (name) {
         localStorage.setItem("climb-name", name);
       }
+      if (signature) {
+        localStorage.setItem("climb-signature", signature);
+      }
     }
-  }, [mission, name]);
+  }, [mission, name, signature]);
 
   // Load persisted mission on mount (optional - for showing what was committed)
   useEffect(() => {
     const savedMission = localStorage.getItem("climb-mission");
     const savedName = localStorage.getItem("climb-name");
+    const savedSignature = localStorage.getItem("climb-signature");
     if (savedMission) {
       setMission(savedMission);
     }
     if (savedName) {
       setName(savedName);
     }
+    if (savedSignature) {
+      setSignature(savedSignature);
+    }
   }, []);
 
-  const handleCommit = useCallback((missionText: string, nameText: string) => {
+  const handleCommit = useCallback((missionText: string, nameText: string, signatureText: string) => {
     setMission(missionText);
     setName(nameText);
+    setSignature(signatureText);
     setIsFading(true);
     setElapsedSeconds(0); // Reset timer on new commit
 
@@ -149,6 +148,7 @@ export default function Home() {
         <TimerView
           mission={mission}
           name={name}
+          signature={signature}
           elapsedSeconds={elapsedSeconds}
           isComplete={appState === "complete"}
         />

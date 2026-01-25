@@ -14,10 +14,24 @@ export default function Taipei101({ isTimerActive, elapsedSeconds = 0, isComplet
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [lastReducedMotionUpdate, setLastReducedMotionUpdate] = useState(0);
   const [reducedMotionProgress, setReducedMotionProgress] = useState(0);
+  const [showMissionAccomplished, setShowMissionAccomplished] = useState(false);
 
   // Calculate progress from elapsed seconds (single source of truth)
   const progress = Math.min(elapsedSeconds / TOTAL_SECONDS, 1);
-  const hasReachedTop = elapsedSeconds >= TOTAL_SECONDS;
+
+  // Delay the image swap until after Alex has climbed to the top
+  useEffect(() => {
+    if (isComplete && !showMissionAccomplished) {
+      // Wait for the climb transition to finish (1 second) before swapping image
+      const timeout = setTimeout(() => {
+        setShowMissionAccomplished(true);
+      }, 1000);
+      return () => clearTimeout(timeout);
+    } else if (!isComplete && showMissionAccomplished) {
+      // Reset when restarting
+      setShowMissionAccomplished(false);
+    }
+  }, [isComplete, showMissionAccomplished]);
 
   // Check for reduced motion preference
   useEffect(() => {
@@ -74,15 +88,15 @@ export default function Taipei101({ isTimerActive, elapsedSeconds = 0, isComplet
             <div
               className="absolute left-1/2 z-20"
               style={{
-                bottom: hasReachedTop ? "88%" : `${1 + climbPercent}%`,
-                width: hasReachedTop ? "6%" : "8%",
-                transform: hasReachedTop ? "translateX(calc(-50% + 1px))" : "translateX(-50%)",
-                transition: prefersReducedMotion ? "none" : "bottom 1s linear, width 1s linear",
+                bottom: isComplete ? "88%" : `${1 + climbPercent}%`,
+                width: showMissionAccomplished ? "6%" : "8%",
+                transform: showMissionAccomplished ? "translateX(calc(-50% + 1px))" : "translateX(-50%)",
+                transition: prefersReducedMotion ? "none" : "bottom 1s linear, width 1s linear, transform 1s linear",
               }}
             >
-              <div className={prefersReducedMotion || hasReachedTop ? "" : "animate-climb-wiggle"}>
+              <div className={prefersReducedMotion || showMissionAccomplished ? "" : "animate-climb-wiggle"}>
                 <img
-                  src={hasReachedTop ? "/missionaccomplished.svg" : "/alex.svg"}
+                  src={showMissionAccomplished ? "/missionaccomplished.svg" : "/alex.svg"}
                   alt=""
                   className="w-full h-auto"
                 />

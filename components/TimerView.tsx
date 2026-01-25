@@ -5,6 +5,7 @@ import { useCallback } from "react";
 interface TimerViewProps {
   mission: string;
   name: string;
+  signature: string;
   elapsedSeconds: number;
   isComplete: boolean;
 }
@@ -141,7 +142,7 @@ function BlockyDisplay({ time }: { time: string }) {
   );
 }
 
-export default function TimerView({ mission, name, elapsedSeconds, isComplete }: TimerViewProps) {
+export default function TimerView({ mission, name, signature, elapsedSeconds, isComplete }: TimerViewProps) {
   const formatTime = useCallback((totalSeconds: number): string => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -152,7 +153,7 @@ export default function TimerView({ mission, name, elapsedSeconds, isComplete }:
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-[var(--background)] z-40">
       {/* Mission display - subtle */}
-      {mission && (
+      {!isComplete && mission && (
         <div className="absolute top-12 left-0 right-0 text-center px-6 sm:left-6 sm:right-auto sm:text-left">
           <p className="font-mono text-xs text-[var(--muted)]/60 max-w-md truncate">
             {name && <span className="mr-2">{name}:</span>}
@@ -180,13 +181,40 @@ export default function TimerView({ mission, name, elapsedSeconds, isComplete }:
               </p>
             </div>
             {mission && (
-              <div className="pt-4 border-t border-[var(--foreground)]/10">
-                <p className="font-mono text-xs text-[var(--muted)]/60 mb-2">
-                  Your mission
-                </p>
-                <p className="font-serif text-base md:text-lg">
-                  {mission}
-                </p>
+              <div className="bg-white/5 backdrop-blur-sm border border-[var(--foreground)]/10 rounded-sm p-8 md:p-10 shadow-sm space-y-6">
+                {/* Mission */}
+                <div>
+                  <p className="font-serif text-base md:text-lg text-center">
+                    {mission}
+                  </p>
+                </div>
+
+                {/* Name and Signature */}
+                <div className="space-y-3 pt-4">
+                  {/* Name */}
+                  {name && (
+                    <div className="space-y-2">
+                      <div className="border-b border-[var(--foreground)]/20 py-2 px-1">
+                        <p className="font-mono text-xs text-center">{name}</p>
+                      </div>
+                      <p className="font-mono text-xs text-[var(--muted)]/60 text-center">
+                        Your name
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Signature */}
+                  {signature && (
+                    <div className="space-y-2">
+                      <div className="border-b border-[var(--foreground)]/20 h-24 flex items-center justify-center">
+                        <img src={signature} alt="Signature" className="max-h-20 max-w-full" />
+                      </div>
+                      <p className="font-mono text-xs text-[var(--muted)]/60 text-center">
+                        Your signature
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             <div className="space-y-3 pt-8">
@@ -202,9 +230,17 @@ export default function TimerView({ mission, name, elapsedSeconds, isComplete }:
       </div>
       
       {/* Tiny footer */}
-      <footer className="absolute bottom-6 left-6 right-0">
+      <footer className="absolute bottom-6 left-0 right-0 text-center px-6 sm:left-6 sm:right-auto sm:text-left">
         <p className="font-mono text-[10px] text-[var(--muted)]/40">
-          Inspired by Alex Honnold · Taipei 101 · January 25, 2026
+          Inspired by Alex Honnold · Taipei 101 · January 25, 2026 · Built by{" "}
+          <a
+            href="https://instagram.com/pixelplayer001"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-[var(--foreground)] transition-colors duration-300"
+          >
+            @PixelPlayer001
+          </a>
         </p>
       </footer>
     </div>
