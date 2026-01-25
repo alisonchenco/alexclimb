@@ -18,10 +18,13 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Same Time. Different Climb.",
+  title: "Alex Honnold Timer",
   description: "A reflection on commitment, effort, and focus — inspired by Alex Honnold's ascent of Taipei 101.",
+  icons: {
+    icon: "/taipei101.svg",
+  },
   openGraph: {
-    title: "Same Time. Different Climb.",
+    title: "Alex Honnold Timer",
     description: "1 hour and 31 minutes. What will you achieve?",
   },
 };
