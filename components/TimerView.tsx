@@ -174,14 +174,14 @@ export default function TimerView({ mission, name, signature, elapsedSeconds, is
           <div className="text-center space-y-10 max-w-2xl px-8">
             <div className="space-y-4">
               <p className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium">
-                You made it.
+                Mission accomplished
               </p>
-              <p className="font-serif text-xl md:text-2xl text-[var(--muted)]">
+              <p className="font-mono text-sm text-[var(--muted)]/60">
                 1 hour and 31 minutes.
               </p>
             </div>
             {mission && (
-              <div className="bg-white/5 backdrop-blur-sm border border-[var(--foreground)]/10 rounded-sm p-8 md:p-10 shadow-sm space-y-6">
+              <div className="bg-white/5 backdrop-blur-sm border border-[var(--foreground)]/10 rounded-sm p-8 md:p-10 shadow-sm space-y-6 mt-4">
                 {/* Mission */}
                 <div>
                   <p className="font-serif text-base md:text-lg text-center">
@@ -217,11 +217,8 @@ export default function TimerView({ mission, name, signature, elapsedSeconds, is
                 </div>
               </div>
             )}
-            <div className="space-y-3 pt-8">
-              <p className="font-serif text-sm md:text-base text-[var(--muted)]/80">
-                Same time as Alex Honnold climbing Taipei 101.
-              </p>
-              <p className="font-serif text-sm md:text-base text-[var(--muted)]/80">
+            <div className="pt-8">
+              <p className="font-mono text-sm text-[var(--muted)]/60">
                 Different climb. Same commitment.
               </p>
             </div>
