@@ -84,6 +84,7 @@ function TypewriterSequence({
   speed = 40,
   lineDelay = 300,
   startDelay = 0,
+  isActive = true,
   onComplete,
 }: {
   lines: string[];
@@ -92,6 +93,7 @@ function TypewriterSequence({
   speed?: number;
   lineDelay?: number;
   startDelay?: number;
+  isActive?: boolean;
   onComplete?: () => void;
 }) {
   const { ref, isInView } = useInView(0.3);
@@ -100,7 +102,7 @@ function TypewriterSequence({
   const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || !isActive) return;
 
     // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -118,7 +120,7 @@ function TypewriterSequence({
     }, startDelay);
 
     return () => clearTimeout(timeout);
-  }, [isInView, startDelay, lines, onComplete]);
+  }, [isInView, isActive, startDelay, lines, onComplete]);
 
   const handleLineComplete = useCallback(() => {
     setCompletedLines((prev) => [...prev, lines[currentLine]]);
@@ -244,8 +246,8 @@ export default function NarrativeSections({ onCommit }: NarrativeSectionsProps) 
         style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
       >
         {/* Section 1: Context (Museum Label) - Typewriter effect */}
-        <section className="min-h-screen flex flex-col items-center justify-center px-8 md:px-16 lg:px-24 py-16 gap-16">
-          <div className="max-w-xl w-full text-center">
+        <section className="min-h-screen flex flex-col items-start justify-center px-8 md:px-16 lg:px-24 py-16 gap-16">
+          <div className="max-w-xl w-full text-left">
             <div className="font-mono text-sm text-[var(--muted)] tracking-wide">
               <TypewriterSequence
                 lines={[
@@ -269,7 +271,7 @@ export default function NarrativeSections({ onCommit }: NarrativeSectionsProps) 
           <button
             onClick={handleNext}
             className="font-mono text-sm tracking-wider hover:text-[var(--foreground)]
-                       transition-all duration-300 py-3 px-8"
+                       transition-all duration-300 py-3"
             style={{ color: '#59AEC5' }}
           >
             next →
@@ -279,23 +281,17 @@ export default function NarrativeSections({ onCommit }: NarrativeSectionsProps) 
 
       {/* Page 2: Commitment */}
       <div
-        className={`transition-all duration-[800ms] ${
+        className={`transition-all duration-700 ${
           currentPage === 2 && !isTransitioning
-            ? "opacity-100 translate-y-0 scale-100"
-            : "opacity-0 translate-y-[100vh] scale-95 pointer-events-none absolute inset-0"
+            ? "opacity-100 translate-y-0 scale-100 blur-0"
+            : "opacity-0 -translate-y-8 scale-98 blur-sm pointer-events-none absolute inset-0"
         }`}
-        style={{ transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+        style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
       >
         {/* Section 4: Commitment Form */}
-        <section className="min-h-screen flex items-center justify-center px-8 md:px-16 lg:px-24 py-16">
-          <div
-            className={`w-full max-w-md transition-all duration-700 delay-200 ${
-              currentPage === 2 && !isTransitioning
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-            }`}
-          >
-            <MissionForm onCommit={onCommit} />
+        <section className="min-h-screen flex items-center justify-start px-8 md:px-16 lg:px-24 py-16">
+          <div className="w-full max-w-md">
+            <MissionForm onCommit={onCommit} isActive={currentPage === 2 && !isTransitioning} />
           </div>
         </section>
 
@@ -310,7 +306,7 @@ export default function NarrativeSections({ onCommit }: NarrativeSectionsProps) 
           <button
             onClick={handleBack}
             className="font-mono text-xs tracking-wider text-[var(--muted)] hover:text-[var(--foreground)]
-                       transition-colors duration-300 py-2 px-4"
+                       transition-colors duration-300 py-2"
           >
             ← back
           </button>
@@ -413,14 +409,9 @@ function SignatureCanvas({ onSignatureChange }: { onSignatureChange: (signature:
           onTouchStart={startDrawing}
           onTouchMove={draw}
           onTouchEnd={stopDrawing}
-          className="w-full h-24 border-b border-[var(--foreground)]/20 cursor-crosshair touch-none"
+          className="block w-full h-24 border-b border-[var(--foreground)]/20 cursor-crosshair touch-none"
           style={{ width: "100%", height: "96px" }}
         />
-      </div>
-      <div className="relative">
-        <p className="font-mono text-xs text-[var(--muted)]/60 text-center">
-          Your signature
-        </p>
         {hasSignature && (
           <button
             type="button"
@@ -432,11 +423,17 @@ function SignatureCanvas({ onSignatureChange }: { onSignatureChange: (signature:
           </button>
         )}
       </div>
+      <p className="font-mono text-xs text-[var(--muted)]/60 text-left">
+        Your signature
+      </p>
     </div>
   );
 }
 
-function MissionForm({ onCommit }: { onCommit: (mission: string, name: string, signature: string) => void }) {
+function MissionForm({ onCommit, isActive }: {
+  onCommit: (mission: string, name: string, signature: string) => void;
+  isActive: boolean;
+}) {
   const [signature, setSignature] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [missionText, setMissionText] = useState("");
@@ -464,44 +461,45 @@ function MissionForm({ onCommit }: { onCommit: (mission: string, name: string, s
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full space-y-12 text-center">
+    <form onSubmit={handleSubmit} className="w-full space-y-12 text-left">
       <TypewriterSequence
         lines={[
           "Now it's your turn.",
           "You have 1 hr 31 mins.",
           "What's your focus?",
         ]}
-        className=""
+        className="space-y-4"
         lineClassName="font-mono text-sm text-[var(--muted)] tracking-wide"
         speed={35}
         lineDelay={400}
-        startDelay={0}
+        startDelay={500}
+        isActive={isActive}
         onComplete={() => setShowForm(true)}
       />
 
-      {/* Paper Note Box - All Fields */}
-      <div className={`bg-white/5 backdrop-blur-sm border border-[var(--foreground)]/10 rounded-sm p-8 md:p-10 shadow-sm space-y-6 transition-all duration-700 ${
+      <div className={`py-8 md:py-10 space-y-8 transition-all duration-700 ${
         showForm ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}>
         {/* Mission Field */}
-        <div>
-          <label htmlFor="mission" className="sr-only">Your mission</label>
+        <div className="space-y-2 pt-16">
           <textarea
             id="mission"
             name="mission"
             required
-            rows={3}
-            placeholder="Your mission"
+            rows={1}
             value={missionText}
             onChange={handleMissionChange}
-            className="w-full bg-transparent border-none outline-none
-                       font-serif text-lg resize-none text-center
-                       placeholder:text-[var(--muted)]/50 transition-colors duration-300"
+            className="block w-full bg-transparent border-0 border-b border-[var(--foreground)]/20 focus:border-[var(--foreground)]/60 outline-none
+                       py-2 px-1 font-mono text-xs resize-none text-left
+                       transition-colors duration-300"
           />
+          <label htmlFor="mission" className="block font-mono text-xs text-[var(--muted)]/60">
+            Your mission
+          </label>
         </div>
 
-        {/* Name and Signature Fields - closer together */}
-        <div className="space-y-3 pt-4">
+        {/* Name and Signature Fields */}
+        <div className="grid grid-cols-2 items-end gap-6">
           {/* Name Field */}
           <div className="space-y-2">
             <input
@@ -509,8 +507,8 @@ function MissionForm({ onCommit }: { onCommit: (mission: string, name: string, s
               id="name"
               name="name"
               placeholder=""
-              className="w-full bg-transparent border-b border-[var(--foreground)]/20 focus:border-[var(--foreground)]/60
-                         outline-none py-2 px-1 font-mono text-xs text-center
+              className="block w-full bg-transparent border-b border-[var(--foreground)]/20 focus:border-[var(--foreground)]/60
+                         outline-none py-2 px-1 font-mono text-xs text-left
                          placeholder:text-[var(--muted)]/50 transition-colors duration-300"
             />
             <label htmlFor="name" className="block font-mono text-xs text-[var(--muted)]/60">
@@ -531,7 +529,7 @@ function MissionForm({ onCommit }: { onCommit: (mission: string, name: string, s
         <button
           type="submit"
           className="font-mono text-sm tracking-wider hover:text-[var(--foreground)]
-                     transition-colors duration-300 py-2 px-6"
+                     transition-colors duration-300 py-2"
           style={{ color: '#59AEC5' }}
         >
           commit.

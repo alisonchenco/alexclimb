@@ -45,7 +45,7 @@ function BlockyDigit({ digit }: { digit: string }) {
         y={0}
         width={w - 2 * (g + t)}
         height={t}
-        className={segments[0] ? "fill-[var(--foreground)]" : "fill-[var(--foreground)]/5"}
+        className={segments[0] ? "fill-[var(--muted)]" : "fill-[var(--muted)]/5"}
       />
       
       {/* Top-right vertical */}
@@ -54,7 +54,7 @@ function BlockyDigit({ digit }: { digit: string }) {
         y={g + t}
         width={t}
         height={(h / 2) - t - g * 2}
-        className={segments[1] ? "fill-[var(--foreground)]" : "fill-[var(--foreground)]/5"}
+        className={segments[1] ? "fill-[var(--muted)]" : "fill-[var(--muted)]/5"}
       />
       
       {/* Bottom-right vertical */}
@@ -63,7 +63,7 @@ function BlockyDigit({ digit }: { digit: string }) {
         y={(h / 2) + g}
         width={t}
         height={(h / 2) - t - g * 2}
-        className={segments[2] ? "fill-[var(--foreground)]" : "fill-[var(--foreground)]/5"}
+        className={segments[2] ? "fill-[var(--muted)]" : "fill-[var(--muted)]/5"}
       />
       
       {/* Bottom horizontal */}
@@ -72,7 +72,7 @@ function BlockyDigit({ digit }: { digit: string }) {
         y={h - t}
         width={w - 2 * (g + t)}
         height={t}
-        className={segments[3] ? "fill-[var(--foreground)]" : "fill-[var(--foreground)]/5"}
+        className={segments[3] ? "fill-[var(--muted)]" : "fill-[var(--muted)]/5"}
       />
       
       {/* Bottom-left vertical */}
@@ -81,7 +81,7 @@ function BlockyDigit({ digit }: { digit: string }) {
         y={(h / 2) + g}
         width={t}
         height={(h / 2) - t - g * 2}
-        className={segments[4] ? "fill-[var(--foreground)]" : "fill-[var(--foreground)]/5"}
+        className={segments[4] ? "fill-[var(--muted)]" : "fill-[var(--muted)]/5"}
       />
       
       {/* Top-left vertical */}
@@ -90,7 +90,7 @@ function BlockyDigit({ digit }: { digit: string }) {
         y={g + t}
         width={t}
         height={(h / 2) - t - g * 2}
-        className={segments[5] ? "fill-[var(--foreground)]" : "fill-[var(--foreground)]/5"}
+        className={segments[5] ? "fill-[var(--muted)]" : "fill-[var(--muted)]/5"}
       />
       
       {/* Middle horizontal */}
@@ -99,7 +99,7 @@ function BlockyDigit({ digit }: { digit: string }) {
         y={(h / 2) - (t / 2)}
         width={w - 2 * (g + t)}
         height={t}
-        className={segments[6] ? "fill-[var(--foreground)]" : "fill-[var(--foreground)]/5"}
+        className={segments[6] ? "fill-[var(--muted)]" : "fill-[var(--muted)]/5"}
       />
     </svg>
   );
@@ -109,8 +109,8 @@ function BlockyDigit({ digit }: { digit: string }) {
 function BlockyColon() {
   return (
     <svg width={24} height={100} viewBox="0 0 24 100" className="block">
-      <rect x={7} y={30} width={10} height={10} className="fill-[var(--foreground)]" />
-      <rect x={7} y={60} width={10} height={10} className="fill-[var(--foreground)]" />
+      <rect x={7} y={30} width={10} height={10} className="fill-[var(--muted)]" />
+      <rect x={7} y={60} width={10} height={10} className="fill-[var(--muted)]" />
     </svg>
   );
 }
@@ -151,10 +151,10 @@ export default function TimerView({ mission, name, signature, elapsedSeconds, is
   }, []);
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-[var(--background)] z-40">
+    <div className="fixed inset-0 flex flex-col items-start justify-center px-8 md:px-16 lg:px-24 bg-[var(--background)] z-40">
       {/* Mission display - subtle */}
       {!isComplete && mission && (
-        <div className="absolute top-12 left-0 right-0 text-center px-6 sm:left-6 sm:right-auto sm:text-left">
+        <div className="absolute top-12 left-0 right-0 text-left px-8 md:px-16 lg:px-24">
           <p className="font-mono text-xs text-[var(--muted)]/60 max-w-md truncate">
             {name && <span className="mr-2">{name}:</span>}
             {mission}
@@ -162,29 +162,28 @@ export default function TimerView({ mission, name, signature, elapsedSeconds, is
         </div>
       )}
 
-      {/* Timer - offset slightly for gallery feel */}
-      <div className="relative ml-0 sm:ml-[-5%] md:ml-[-15%] lg:ml-[-20%]">
+      <div className="relative">
         {!isComplete ? (
-          <div className="scale-[0.5] sm:scale-75 md:scale-100 lg:scale-125 origin-center">
+          <div className="scale-[0.5] sm:scale-75 md:scale-100 lg:scale-125 origin-left">
             <time dateTime={`PT${elapsedSeconds}S`}>
               <BlockyDisplay time={formatTime(elapsedSeconds)} />
             </time>
           </div>
         ) : (
-          <div className="text-center space-y-10 max-w-2xl px-8">
+          <div className="text-left space-y-10 max-w-2xl">
             <div className="space-y-4">
-              <p className="font-serif text-3xl md:text-4xl lg:text-5xl font-medium">
+              <p className="font-mono text-sm text-[var(--muted)] tracking-wide">
                 Mission accomplished
               </p>
-              <p className="font-mono text-sm text-[var(--muted)]/60">
+              <p className="font-mono text-sm text-[#59AEC5] tracking-wide">
                 1 hour and 31 minutes.
               </p>
             </div>
             {mission && (
-              <div className="bg-white/5 backdrop-blur-sm border border-[var(--foreground)]/10 rounded-sm p-8 md:p-10 shadow-sm space-y-6 mt-4">
+              <div className="space-y-6 mt-4">
                 {/* Mission */}
                 <div>
-                  <p className="font-serif text-base md:text-lg text-center">
+                  <p className="font-mono text-sm text-[var(--muted)] tracking-wide text-left break-words">
                     {mission}
                   </p>
                 </div>
@@ -195,9 +194,9 @@ export default function TimerView({ mission, name, signature, elapsedSeconds, is
                   {name && (
                     <div className="space-y-2">
                       <div className="border-b border-[var(--foreground)]/20 py-2 px-1">
-                        <p className="font-mono text-xs text-center">{name}</p>
+                        <p className="font-mono text-xs text-left">{name}</p>
                       </div>
-                      <p className="font-mono text-xs text-[var(--muted)]/60 text-center">
+                      <p className="font-mono text-xs text-[var(--muted)]/60 text-left">
                         Your name
                       </p>
                     </div>
@@ -206,10 +205,10 @@ export default function TimerView({ mission, name, signature, elapsedSeconds, is
                   {/* Signature */}
                   {signature && (
                     <div className="space-y-2">
-                      <div className="border-b border-[var(--foreground)]/20 h-24 flex items-center justify-center">
+                      <div className="border-b border-[var(--foreground)]/20 h-24 flex items-center justify-start">
                         <img src={signature} alt="Signature" className="max-h-20 max-w-full" />
                       </div>
-                      <p className="font-mono text-xs text-[var(--muted)]/60 text-center">
+                      <p className="font-mono text-xs text-[var(--muted)]/60 text-left">
                         Your signature
                       </p>
                     </div>
@@ -217,27 +216,14 @@ export default function TimerView({ mission, name, signature, elapsedSeconds, is
                 </div>
               </div>
             )}
-            <div className="pt-8">
-              <p className="font-mono text-sm text-[var(--muted)]/60">
-                Different climb. Same commitment.
-              </p>
-            </div>
           </div>
         )}
       </div>
       
       {/* Tiny footer */}
-      <footer className="absolute bottom-6 left-0 right-0 text-center px-6 sm:left-6 sm:right-auto sm:text-left">
+      <footer className="absolute bottom-6 left-0 right-0 text-left px-8 md:px-16 lg:px-24">
         <p className="font-mono text-[10px] text-[var(--muted)]/40">
-          Inspired by Alex Honnold · Taipei 101 · January 25, 2026 · Built by{" "}
-          <a
-            href="https://instagram.com/pixelplayer001"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-[var(--foreground)] transition-colors duration-300"
-          >
-            @PixelPlayer001
-          </a>
+          Inspired by Alex Honnold · Taipei 101 · January 25, 2026
         </p>
       </footer>
     </div>
