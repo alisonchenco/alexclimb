@@ -183,7 +183,7 @@ export default function TimerView({ mission, name, signature, elapsedSeconds, is
               <div className="space-y-6 mt-4">
                 {/* Mission */}
                 <div>
-                  <p className="font-mono text-base md:text-lg text-left">
+                  <p className="font-mono text-sm text-[var(--muted)] tracking-wide text-left break-words">
                     {mission}
                   </p>
                 </div>
