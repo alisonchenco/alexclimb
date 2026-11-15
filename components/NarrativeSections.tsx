@@ -494,7 +494,7 @@ function MissionForm({ onCommit }: { onCommit: (mission: string, name: string, s
             placeholder="Your mission"
             value={missionText}
             onChange={handleMissionChange}
-            className="w-full bg-transparent border-none outline-none
+            className="w-full bg-transparent border-0 border-b border-[var(--foreground)]/20 focus:border-[var(--foreground)]/60 outline-none
                        font-serif text-lg resize-none text-center
                        placeholder:text-[var(--muted)]/50 transition-colors duration-300"
           />
